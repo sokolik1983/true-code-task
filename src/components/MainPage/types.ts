@@ -1,7 +1,7 @@
 export interface IExchanges {
-    currency: string,
-    exchangeShortName: string,
+    currency: string | null,
+    exchangeShortName: string | null,
     name: string,
-    stockExchange: string,
+    stockExchange: string | null,
     symbol: string
 }

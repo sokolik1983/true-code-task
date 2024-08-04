@@ -1,31 +1,48 @@
 import React, { useEffect, useState } from "react";
-import { fetchData } from "./helpers";
+import { fetchData, generateUniqueId, getRandomColor, getTwoFirstLetters } from "./helpers";
 import { IExchanges } from "./types";
 
 import "./styles.scss";
-
 export const MainPage = () => {
     const [exchanges, setExchanges] = useState<IExchanges[]>([]);
 
-    useEffect( () => {
-        fetchData().then(response => setExchanges(response));
+    const getExchanges = () => {
+        fetchData().then(response => response && setExchanges(response));
+    }
 
+    useEffect( () => {
+        getExchanges();
         const interval = setInterval(async () => {
             const res = await fetchData();
-            setExchanges(res)
+            if(res) setExchanges(res);
         }, 30000);
         return () => clearInterval(interval);
     }, []);
 
-
-    useEffect( () => {
-
-        console.log('items', exchanges);
-
-    }, [exchanges]);
-
     return (
-        <p className="par">111111111111111111111111</p>
+        <div className="container">
+            <div className="tittleCont">
+                <h1>Список акций на бирже:</h1>
+                <button onClick={getExchanges}>Обновить данные</button>
+            </div>
+            {
+                exchanges?.length &&
+                exchanges.map(item => (
+                    <div className="itemCont" key={generateUniqueId()}>
+                        <div
+                            className="logoCont"
+                            style={{background: getRandomColor()}}
+                        >
+                            <p>{getTwoFirstLetters(item.name)}</p>
+                        </div>
+                        <div  className="content">
+                            <p>{item.name} {`(${item.symbol})`}</p>
+                            <p>Биржа: {item.stockExchange + ` (${item.exchangeShortName})`} </p>
+                        </div>
+                    </div>
+                ))
+            }
+        </div>
     )
 }
 
