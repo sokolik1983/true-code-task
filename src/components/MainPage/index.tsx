@@ -5,16 +5,23 @@ import { IExchanges } from "./types";
 import "./styles.scss";
 export const MainPage = () => {
     const [exchanges, setExchanges] = useState<IExchanges[]>([]);
+    const [isLoad, setIsLoad] = useState<boolean>(false);
 
     const getExchanges = () => {
-        fetchData().then(response => response && setExchanges(response));
+        return fetchData().then(response => response && setExchanges(response));
     }
 
     useEffect( () => {
+        setIsLoad(true);
         getExchanges();
+        if(exchanges.length) setIsLoad(false);
+
         const interval = setInterval(async () => {
             const res = await fetchData();
-            if(res) setExchanges(res);
+            if(res) {
+                setExchanges(res);
+                setIsLoad(false);
+            }
         }, 30000);
         return () => clearInterval(interval);
     }, []);
