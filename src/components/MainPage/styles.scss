@@ -14,23 +14,39 @@ body {
             align-items: center;
             padding: 0 20px;
         }
-        & .itemCont {
+        & .spinCont {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        & .itemCont, .sortCont {
             display: flex;
             align-items: center;
             padding: 10px;
             border: 1px solid lightgrey;
             border-radius: 5px;
             margin-bottom: 10px;
-            & .logoCont {
+            & .leftCont {
                 display: flex;
                 justify-content: center;
                 align-items: center;
+            }
+            & .rightCont {
+                width: 200px;
+                padding-right: 20px;
+            }
+            & .logo {
                 width: 50px;
                 height: 50px;
-                background: pink;
-                border-radius: 50%;
-                margin-right: 10px;
+                padding-right: 20px;
+                & img {
+                    width: 100%;
+                }
             }
+        }
+        & .itemCont {
+            justify-content: space-between;
         }
     }
 }

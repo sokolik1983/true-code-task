@@ -3,5 +3,8 @@ export interface IExchanges {
     exchangeShortName: string | null,
     name: string,
     stockExchange: string | null,
-    symbol: string
+    symbol: string,
+    price: number,
+    changes: number,
+    image: string
 }
