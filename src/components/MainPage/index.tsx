@@ -1,76 +1,25 @@
-import React, {useEffect, useState} from "react";
-import { Spin } from 'antd';
-import { Select } from "antd";
+import React, { useEffect, useState } from "react";
+import { Spin, Select } from 'antd';
 import { fetchData, getRandomColor, getTwoFirstLetters, generateUniqueId } from "./helpers";
-import { IExchanges } from "./types";
+import { IExchanges } from "../types";
+import { optionsData } from "../sortFormat";
 
 import "./styles.scss";
 
-const optionsData = [
-    {
-        id: 1,
-        value: 'По алфавиту: от A до Z'
-    },
-    {
-        id: 2,
-        value: 'По алфавиту: от Z до A'
-    },
-    {
-        id: 3,
-        value: 'По цене от меньшей к большей'
-    },
-    {
-        id: 4,
-        value: 'По цене от большей к меньшей'
-    },
-    {
-        id: 5,
-        value: 'По изменению цены от меньшей к большей'
-    },
-    {
-        id: 6,
-        value: 'По изменению цены от большей к меньшей'
-    },
-]
-
 export const MainPage = () => {
     const [exchanges, setExchanges] = useState<IExchanges[]>([]);
-    // const [selectValue, setSelectValue] = useState<string>(optionsData[0].value);
     const [isLoad, setIsLoad] = useState<boolean>(true);
 
-
-
-
-
-    // const fetchData1 = async (symbol: string) => {
-    //     try {
-    //         // console.log('1111111111111111')
-    //         const response = await fetch(`https://financialmodelingprep.com/api/v3/profile/${symbol}?apikey=FTpDDg9vsIYNf2Ben0i3M0gulIBzRFgS`);
-    //         if (!response.ok) {
-    //             throw new Error('Network response was not ok ' + response.statusText);
-    //         }
-    //         return await response.json();
-    //     } catch (error) {
-    //         console.error('There has been a problem with your fetch operation:', error);
-    //     }
-    // }
-    //
-    //
-    //
-    // const getFullInformation  = async (list: IExchanges[]) => {
-    //     console.log('list', list);
-    //     const fullInfoList = Promise.all(list.map(async item => {
-    //         const newDataItem =  await fetchData1(item.symbol);
-    //
-    //         console.log('newDataItem', newDataItem)
-    //         return { ...item, ...newDataItem }
-    //     }));
-    //
-    //     console.log('fullInfoList', fullInfoList)
-    // }
-
-
-    const fetchData1 = async (symbol: string) => {
+    /**
+     * Выполняет запрос к API FinancialModelingPrep для получения полной информации
+     * о компании по ее символу (ticker).
+     *
+     * @param {string} symbol - Символ компании (например, "AAPL", "MSFT").
+     * @returns {Promise<any>} - Возвращает промис, который разрешается с
+     *  объектом JSON, содержащим полную информацию о компании, или отклоняется
+     *  с ошибкой, если запрос не удался.
+     */
+    const fetchFullData = async (symbol: string) => {
         try {
             const response = await fetch(`https://financialmodelingprep.com/api/v3/profile/${symbol}?apikey=FTpDDg9vsIYNf2Ben0i3M0gulIBzRFgS`);
             if (!response.ok) {
@@ -82,28 +31,45 @@ export const MainPage = () => {
         }
     };
 
+    /**
+     * Получает полную информацию о каждом обмене (exchange) из массива `list`
+     * с помощью функции `fetchFullData()` и обновляет состояние компонента.
+     *
+     * @param {IExchanges[]} list - Массив объектов `IExchanges`,
+     *  представляющих exchanges, для которых нужно получить полную информацию.
+     * @returns {Promise<void>} - Возвращает промис, который разрешается после
+     *  завершения получения полной информации и обновления состояния.
+     */
     const getFullInformation = async (list: IExchanges[]) => {
         const fullInfoList = await Promise.all(list.map(async item => {
-            const newDataItem = await fetchData1(item.symbol);
-            if(newDataItem) {
+            const newDataItem = await fetchFullData(item.symbol);
+            if (newDataItem) {
                 const descriptor = Object.getOwnPropertyDescriptor(newDataItem, "0");
                 const valueAtZeroKey = descriptor?.value;
-                return { ...item, ...valueAtZeroKey };
+                return {...item, ...valueAtZeroKey};
             }
         }));
 
         setExchanges(fullInfoList);
     };
 
+    /**
+     * Получает данные об exchanges с помощью функции `fetchData()`,
+     * обрабатывает их и обновляет состояние компонента.
+     *
+     * @returns {Promise<void>} - Возвращает промис, который разрешается после
+     *  завершения запроса данных и обновления состояния.
+     */
     const getExchanges = () => {
         return fetchData().then(response => {
             if (response) {
                 getFullInformation(response);
                 setIsLoad(false)
-            };
+            }
+            ;
         });
     }
-
+    
     useEffect(() => {
         getExchanges();
         const interval = setInterval(async () => {
@@ -112,14 +78,24 @@ export const MainPage = () => {
                 setExchanges(res);
                 setIsLoad(false);
             }
-        }, 300000);
+        }, 30000);
         return () => clearInterval(interval);
     }, []);
 
-    useEffect(() => {
-        console.log('exchanges', exchanges);
-    }, [exchanges]);
 
+    /**
+     * Обработчик изменения значения, который сортирует массив объектов `exchanges`
+     * по выбранному критерию.
+     *
+     * @param {string} value - Выбранное значение для сортировки. Допустимые значения:
+     *  - "По алфавиту: от A до Z"
+     *  - "По алфавиту: от Z до A"
+     *  - "По цене от меньшей к большей"
+     *  - "По цене от большей к меньшей"
+     *  - "По изменению цены от меньшей к большей"
+     *  - "По изменению цены от большей к меньшей"
+     * @returns {void}
+     */
     const handleChange = (value: string): void => {
         switch (value) {
             case "По алфавиту: от A до Z":
@@ -149,12 +125,12 @@ export const MainPage = () => {
         <div className="container">
             <div className="tittleCont">
                 <h1>Список акций на бирже:</h1>
-                <button onClick={getExchanges}>Обновить данные:</button>
+                <button onClick={() => getExchanges()}>Обновить данные:</button>
             </div>
             <div className="sortCont">
                 <p>Сортировка: </p>
                 <Select
-                    style={{ width: '400px'}}
+                    className="select"
                     defaultValue={optionsData[0].value}
                     onChange={handleChange}
                     options={optionsData}
@@ -165,15 +141,20 @@ export const MainPage = () => {
                 ? <div className="spinCont">
                     <Spin/>
                 </div>
-                : exchanges?.length &&
-                exchanges.map(item => (
+                : exchanges
+                && exchanges.length
+                && exchanges.map(item => (
                     <div className="itemCont" key={generateUniqueId()}>
                         <div className="leftCont">
                             <div
                                 className="logo"
+                                style={item.image ? {background: 'transparent'} : {background: getRandomColor()}}
                             >
-                                <img src={item.image} alt="logo"/>
-                                {/*<p>{getTwoFirstLetters(item.name)}</p>*/}
+                                {
+                                    item.image
+                                        ? <img src={item.image} alt="logo"/>
+                                        : <p>{getTwoFirstLetters(item.name)}</p>
+                                }
                             </div>
                             <div className="name">
                                 <p>{item.name} {`(${item.symbol})`}</p>

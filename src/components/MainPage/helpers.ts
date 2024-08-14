@@ -1,4 +1,6 @@
-
+/**
+ * Коды цветов, которые рандомно выбирает функция getRandomColor
+ */
 const colorCodes = [
     '#FFC0CB',
     '#ADD8E6',
@@ -7,9 +9,15 @@ const colorCodes = [
     '#D3D3D3',
     '#FFFACD',
     '#B5AFEE',
-    'F0B74C'
 ];
-
+/**
+ * Выполняет запрос к API FinancialModelingPrep для поиска компаний по заданному
+ * запросу и возвращает список найденных компаний.
+ *
+ * @returns {Promise<any>} - Возвращает промис, который разрешается с
+ *  объектом JSON, содержащим список найденных компаний, или отклоняется
+ *  с ошибкой, если запрос не удался.
+ */
 export const fetchData = async () => {
     try {
         const response = await fetch('https://financialmodelingprep.com/api/v3/search?query=AA&apikey=FTpDDg9vsIYNf2Ben0i3M0gulIBzRFgS&limit=5');
@@ -33,10 +41,19 @@ export const generateUniqueId = () => {
 
     return uniqueId;
 };
-
+/**
+ * Функция забирает 2 первых буквы для exchange, у которого нет своего логотипа
+ *
+ * @returns {string} Отдаёт рандомный цвет из colorCodes.
+ */
 export const getTwoFirstLetters = (word: string) => {
     return word.slice(0, 2).toUpperCase();
 }
+/**
+ * Функция генерирует рандомный цвет лого для exchange, у которого нет своего логотипа
+ *
+ * @returns {string} Отдаёт рандомный цвет из colorCodes.
+ */
 export const getRandomColor = () => {
     const index = Math.floor(Math.random() * colorCodes.length);
     return colorCodes[index];

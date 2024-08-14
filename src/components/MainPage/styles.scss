@@ -48,6 +48,12 @@ body {
         & .itemCont {
             justify-content: space-between;
         }
+        & .sortCont {
+            & .select {
+                width: 400px;
+            }
+        }
+
     }
 }
 
